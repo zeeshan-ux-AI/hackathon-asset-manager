@@ -40,6 +40,14 @@ export interface Device {
   lastChangedAt: string;
 }
 
+export interface DeviceUpdate {
+  isOn: boolean;
+}
+
+export interface ErrorResponse {
+  error: string;
+}
+
 export interface DeviceListResponse {
   devices: Device[];
   generatedAt: string;

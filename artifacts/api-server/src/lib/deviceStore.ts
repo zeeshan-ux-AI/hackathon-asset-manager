@@ -157,6 +157,36 @@ export function getUsageSummary(): UsageSummary {
   };
 }
 
+export function setDeviceState(
+  deviceId: string,
+  isOn: boolean,
+): DeviceState | undefined {
+  const index = devices.findIndex((device) => device.id === deviceId);
+  if (index === -1) return undefined;
+
+  const device = devices[index]!;
+  if (device.isOn === isOn) {
+    return { ...device };
+  }
+
+  const nowIso = new Date().toISOString();
+  const updated: DeviceState = {
+    ...device,
+    isOn,
+    powerDrawWatts: isOn ? device.ratedWatts : 0,
+    lastChangedAt: nowIso,
+  };
+  devices[index] = updated;
+
+  const { newAlerts } = refreshAlerts(getDevices());
+  deviceEvents.emit("update", { devices: getDevices() });
+  for (const alert of newAlerts) {
+    deviceEvents.emit("newAlert", alert);
+  }
+
+  return { ...updated };
+}
+
 function randomInt(min: number, max: number): number {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }

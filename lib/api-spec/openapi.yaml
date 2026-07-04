@@ -39,6 +39,36 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/DeviceListResponse"
+  /devices/{deviceId}:
+    patch:
+      operationId: updateDevice
+      tags: [devices]
+      summary: Turn a single device on or off
+      parameters:
+        - name: deviceId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DeviceUpdate"
+      responses:
+        "200":
+          description: Updated device
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Device"
+        "404":
+          description: Device not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
   /rooms/{roomId}:
     get:
       operationId: getRoom
@@ -130,6 +160,20 @@ components:
         - powerDrawWatts
         - ratedWatts
         - lastChangedAt
+    DeviceUpdate:
+      type: object
+      properties:
+        isOn:
+          type: boolean
+      required:
+        - isOn
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+        - error
     DeviceListResponse:
       type: object
       properties:

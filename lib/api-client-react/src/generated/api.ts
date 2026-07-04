@@ -6,18 +6,25 @@
  * OpenAPI spec version: 0.1.0
  */
 import {
+  useMutation,
   useQuery
 } from '@tanstack/react-query';
 import type {
+  MutationFunction,
   QueryFunction,
   QueryKey,
+  UseMutationOptions,
+  UseMutationResult,
   UseQueryOptions,
   UseQueryResult
 } from '@tanstack/react-query';
 
 import type {
   AlertListResponse,
+  Device,
   DeviceListResponse,
+  DeviceUpdate,
+  ErrorResponse,
   HealthStatus,
   RoomId,
   RoomSummary,
@@ -25,7 +32,7 @@ import type {
 } from './api.schemas';
 
 import { customFetch } from '../custom-fetch';
-import type { ErrorType } from '../custom-fetch';
+import type { ErrorType , BodyType } from '../custom-fetch';
 
 type AwaitedInput<T> = PromiseLike<T> | T;
 
@@ -206,6 +213,77 @@ export function useListDevices<TData = Awaited<ReturnType<typeof listDevices>>, 
 
 
 
+
+export const getUpdateDeviceUrl = (deviceId: string,) => {
+
+
+
+
+  return `/api/devices/${deviceId}`
+}
+
+/**
+ * @summary Turn a single device on or off
+ */
+export const updateDevice = async (deviceId: string,
+    deviceUpdate: DeviceUpdate, options?: RequestInit): Promise<Device> => {
+
+  return customFetch<Device>(getUpdateDeviceUrl(deviceId),
+  {
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(deviceUpdate)
+  }
+);}
+
+
+
+
+export const getUpdateDeviceMutationOptions = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateDevice>>, TError,{deviceId: string;data: BodyType<DeviceUpdate>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateDevice>>, TError,{deviceId: string;data: BodyType<DeviceUpdate>}, TContext> => {
+
+const mutationKey = ['updateDevice'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateDevice>>, {deviceId: string;data: BodyType<DeviceUpdate>}> = (props) => {
+          const {deviceId,data} = props ?? {};
+
+          return  updateDevice(deviceId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateDeviceMutationResult = NonNullable<Awaited<ReturnType<typeof updateDevice>>>
+    export type UpdateDeviceMutationBody = BodyType<DeviceUpdate>
+    export type UpdateDeviceMutationError = ErrorType<ErrorResponse>
+
+    /**
+ * @summary Turn a single device on or off
+ */
+export const useUpdateDevice = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateDevice>>, TError,{deviceId: string;data: BodyType<DeviceUpdate>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof updateDevice>>,
+        TError,
+        {deviceId: string;data: BodyType<DeviceUpdate>},
+        TContext
+      > => {
+      return useMutation(getUpdateDeviceMutationOptions(options));
+    }
 
 export const getGetRoomUrl = (roomId: RoomId,) => {
 

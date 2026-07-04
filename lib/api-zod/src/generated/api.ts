@@ -37,6 +37,29 @@ export const ListDevicesResponse = zod.object({
 
 
 /**
+ * @summary Turn a single device on or off
+ */
+export const UpdateDeviceParams = zod.object({
+  "deviceId": zod.coerce.string()
+})
+
+export const UpdateDeviceBody = zod.object({
+  "isOn": zod.boolean()
+})
+
+export const UpdateDeviceResponse = zod.object({
+  "id": zod.string(),
+  "name": zod.string().describe('Human readable label, e.g. \"Fan 1\"'),
+  "type": zod.enum(['fan', 'light']),
+  "room": zod.enum(['drawing_room', 'work_room_1', 'work_room_2']),
+  "isOn": zod.boolean(),
+  "powerDrawWatts": zod.number().describe('Wattage drawn when on; 0 when off'),
+  "ratedWatts": zod.number().describe('Rated wattage of the device when running'),
+  "lastChangedAt": zod.coerce.date()
+})
+
+
+/**
  * @summary Get a single room's devices and power usage
  */
 export const GetRoomParams = zod.object({

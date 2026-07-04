@@ -1,2 +1,3 @@
 - [Shared-process bot + API pattern](shared-process-bot-api.md) — running a Discord/Slack bot in the same Node process as the API server avoids sync lag when both must read one live in-memory state.
 - [Stateful derived alerts](stateful-derived-alerts.md) — model recurring condition-based alerts as a keyed Map recomputed each tick, not as logged/appended events, to get correct createdAt and clean resolution.
+- [Discord bot "Missing Access"](discord-bot-missing-access.md) — server membership ≠ per-channel permissions; check channel ID and overwrites, not just invite status.

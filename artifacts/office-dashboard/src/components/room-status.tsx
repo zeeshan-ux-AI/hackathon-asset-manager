@@ -1,10 +1,20 @@
 import React from "react";
-import { useGetRoom } from "@workspace/api-client-react";
+import { useGetRoom, useUpdateDevice, getGetRoomQueryKey } from "@workspace/api-client-react";
+import { useQueryClient } from "@tanstack/react-query";
 import { Lightbulb, Fan, Zap } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Switch } from "@/components/ui/switch";
 
 export function RoomStatus({ roomId, title }: { roomId: "drawing_room" | "work_room_1" | "work_room_2", title: string }) {
   const { data: room, isLoading, isError } = useGetRoom(roomId);
+  const queryClient = useQueryClient();
+  const { mutate: updateDevice, isPending } = useUpdateDevice({
+    mutation: {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: getGetRoomQueryKey(roomId) });
+      },
+    },
+  });
 
   if (isLoading) {
     return (
@@ -55,8 +65,18 @@ export function RoomStatus({ roomId, title }: { roomId: "drawing_room" | "work_r
               </div>
             </div>
             
-            <div className={`px-2 py-1 rounded text-[10px] font-mono uppercase font-bold ${device.isOn ? 'bg-primary/10 text-primary border border-primary/20' : 'bg-muted text-muted-foreground border border-border'}`}>
-              {device.isOn ? 'ON' : 'OFF'}
+            <div className="flex items-center gap-2">
+              <span className={`text-[10px] font-mono uppercase font-bold ${device.isOn ? 'text-primary' : 'text-muted-foreground'}`}>
+                {device.isOn ? 'ON' : 'OFF'}
+              </span>
+              <Switch
+                checked={device.isOn}
+                disabled={isPending}
+                onCheckedChange={(checked) =>
+                  updateDevice({ deviceId: device.id, data: { isOn: checked } })
+                }
+                aria-label={`Toggle ${device.name}`}
+              />
             </div>
           </div>
         ))}

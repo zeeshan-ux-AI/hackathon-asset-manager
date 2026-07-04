@@ -1,5 +1,6 @@
 import React from "react";
-import { useListDevices } from "@workspace/api-client-react";
+import { useListDevices, useUpdateDevice, getListDevicesQueryKey } from "@workspace/api-client-react";
+import { useQueryClient } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
 
 interface BlueprintDeviceProps {
@@ -8,12 +9,18 @@ interface BlueprintDeviceProps {
   isOn: boolean;
   type: "light" | "fan";
   label: string;
+  onToggle: () => void;
+  disabled: boolean;
 }
 
-function BlueprintDevice({ x, y, isOn, type, label }: BlueprintDeviceProps) {
+function BlueprintDevice({ x, y, isOn, type, label, onToggle, disabled }: BlueprintDeviceProps) {
   return (
-    <div 
-      className="absolute transform -translate-x-1/2 -translate-y-1/2 flex flex-col items-center gap-1 group"
+    <button
+      type="button"
+      onClick={onToggle}
+      disabled={disabled}
+      aria-label={`Toggle ${label}`}
+      className="absolute transform -translate-x-1/2 -translate-y-1/2 flex flex-col items-center gap-1 group cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 bg-transparent border-0 p-0"
       style={{ left: `${x}%`, top: `${y}%` }}
     >
       <div 
@@ -33,12 +40,20 @@ function BlueprintDevice({ x, y, isOn, type, label }: BlueprintDeviceProps) {
       <div className="text-[9px] font-mono text-muted-foreground bg-background/80 px-1 rounded border border-border whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity absolute top-6">
         {label}
       </div>
-    </div>
+    </button>
   );
 }
 
 export function OfficeBlueprint() {
   const { data, isLoading } = useListDevices();
+  const queryClient = useQueryClient();
+  const { mutate: updateDevice, isPending } = useUpdateDevice({
+    mutation: {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: getListDevicesQueryKey() });
+      },
+    },
+  });
 
   if (isLoading) {
     return <Skeleton className="w-full h-full min-h-[300px] rounded bg-muted/50" />;
@@ -114,6 +129,10 @@ export function OfficeBlueprint() {
             isOn={device.isOn}
             type={device.type}
             label={device.name}
+            disabled={isPending}
+            onToggle={() =>
+              updateDevice({ deviceId: device.id, data: { isOn: !device.isOn } })
+            }
           />
         );
       })}

@@ -5,12 +5,16 @@ import {
   GetRoomResponse,
   GetUsageResponse,
   ListAlertsResponse,
+  UpdateDeviceParams,
+  UpdateDeviceBody,
+  UpdateDeviceResponse,
 } from "@workspace/api-zod";
 import {
   deviceEvents,
   getDevices,
   getRoomSummary,
   getUsageSummary,
+  setDeviceState,
 } from "../lib/deviceStore";
 import { getActiveAlerts } from "../lib/alertsEngine";
 import { logger } from "../lib/logger";
@@ -41,6 +45,20 @@ router.get("/alerts", (_req, res) => {
     alerts: getActiveAlerts(),
     generatedAt: new Date().toISOString(),
   });
+  res.json(payload);
+});
+
+router.patch("/devices/:deviceId", (req, res) => {
+  const { deviceId } = UpdateDeviceParams.parse(req.params);
+  const { isOn } = UpdateDeviceBody.parse(req.body);
+
+  const updated = setDeviceState(deviceId, isOn);
+  if (!updated) {
+    res.status(404).json({ error: `Device ${deviceId} not found` });
+    return;
+  }
+
+  const payload = UpdateDeviceResponse.parse(updated);
   res.json(payload);
 });
 

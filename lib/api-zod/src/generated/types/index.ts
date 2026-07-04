@@ -12,6 +12,8 @@ export * from './alertType';
 export * from './device';
 export * from './deviceListResponse';
 export * from './deviceType';
+export * from './deviceUpdate';
+export * from './errorResponse';
 export * from './healthStatus';
 export * from './roomId';
 export * from './roomSummary';
