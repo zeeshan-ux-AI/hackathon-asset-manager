@@ -31,7 +31,7 @@ If you prefer not to use the Blueprint:
 |---------|-------|
 | **Runtime** | Node |
 | **Build Command** | `corepack enable && corepack prepare pnpm@10 --activate && pnpm install --frozen-lockfile && pnpm run build:render` |
-| **Start Command** | `node --enable-source-maps artifacts/api-server/dist/index.mjs` |
+| **Start Command** | `pnpm start` |
 | **Health Check Path** | `/api/healthz` |
 
 **Environment variables:**
@@ -41,9 +41,10 @@ If you prefer not to use the Blueprint:
 | `NODE_ENV` | `production` | Yes |
 | `BASE_PATH` | `/` | Yes |
 | `SERVE_STATIC_DASHBOARD` | `true` | Yes |
-| `PORT` | `10000` (build-time only; Render sets runtime PORT) | Yes |
 | `DISCORD_BOT_TOKEN` | Your bot token | No |
 | `DISCORD_ALERT_CHANNEL_ID` | Discord channel ID | No |
+
+> **Note:** Do not set `PORT` manually — Render injects it at runtime automatically.
 
 ## Local development
 
