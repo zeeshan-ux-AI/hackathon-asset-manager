@@ -1,0 +1,33 @@
+I am participating in a hackathon, and I have provided the exact text/rules of my problem statement: 'Lights, Fans, Discord: The Boss's Big Idea'. I need you to act as an Elite Full-Stack Developer and Software Architect to build this complete project from scratch.
+  
+​The project must be fully optimized for GitHub tracking and seamless Render deployment. Do not generate any loose, temporary, or Replit-specific config files.
+​🛠️ Core Project Specifications:
+​Architecture: A single shared backend API (Node.js/Express) serving as the single source of truth for both the Web Dashboard and the Discord Bot.
+  
+​Simulated IoT Layer: An in-memory data store containing all 18 devices across 3 rooms (Drawing Room, Work Room 1, Work Room 2). Each room has 2 Fans (60W) and 3 Lights (15W). The data must be dynamic, simulated with a background interval script to toggle states realistically over time. Each device object must contain: status (on/off), power_draw (Watts), room, and last_changed (timestamp).
+  
+​Web Dashboard: A clean, single-page UI utilizing Server-Sent Events (SSE) or WebSockets for real-time, zero-refresh updates. It must include:
+  
+​Live Device Status Panel (grouped by room with glowing indicators).
+  
+​Live Power Consumption Meter (Total Watts + Per-room breakdown).
+  
+​Active Alerts Panel (flags devices left ON after-hours 9 AM - 5 PM, or active for >2 hours).
+  
+​Discord Bot: A fully functioning bot using discord.js (v14) that responds to commands based on the live backend data:
+​!status -> Humanized conversational summary of all rooms.
+  
+​!room <name> -> Status of a specific room.
+  
+​!usage -> Total real-time power (W) and estimated daily kWh.
+  
+​Bonus Feature: Automatically posts a proactive alert message to a designated channel when anomaly rules are triggered.
+  
+​🚀 Render & GitHub Deployment Requirements:
+​Dynamic Port: The server must listen on process.env.PORT || 3000 to prevent crashes on Render.
+​Environment Variables: Keep Discord tokens, Client IDs, and Channel IDs securely inside process.env.
+​Configuration Files: Provide a production-ready package.json with a "start": "node server.js" script, and a clean .gitignore file.
+​No Placeholders: Write the complete, raw, uncropped code for every file. Do not truncate logic with comments like // implement logic here.
+​README.md: Generate a full markdown file describing the architecture, tech stack, configuration, and step-by-step setup guide.
+  
+​First, show me the entire clean directory structure tree, and then provide the code for each file sequentially." 

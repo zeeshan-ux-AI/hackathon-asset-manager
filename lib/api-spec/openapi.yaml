@@ -3,13 +3,15 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: Smart Office monitoring API — simulated device state, power usage, and alerts
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: devices
+    description: Device and room monitoring
 paths:
   /healthz:
     get:
@@ -24,6 +26,63 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+  /devices:
+    get:
+      operationId: listDevices
+      tags: [devices]
+      summary: List all devices
+      description: Returns the live state of all 15 simulated devices across all rooms
+      responses:
+        "200":
+          description: All devices
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeviceListResponse"
+  /rooms/{roomId}:
+    get:
+      operationId: getRoom
+      tags: [devices]
+      summary: Get a single room's devices and power usage
+      parameters:
+        - name: roomId
+          in: path
+          required: true
+          schema:
+            $ref: "#/components/schemas/RoomId"
+      responses:
+        "200":
+          description: Room summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RoomSummary"
+  /usage:
+    get:
+      operationId: getUsage
+      tags: [devices]
+      summary: Get office-wide power usage
+      description: Total current wattage, per-room breakdown, and estimated daily kWh
+      responses:
+        "200":
+          description: Usage summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UsageSummary"
+  /alerts:
+    get:
+      operationId: listAlerts
+      tags: [devices]
+      summary: List active alerts
+      description: Devices left on after office hours, or rooms fully active for over 2 hours
+      responses:
+        "200":
+          description: Active alerts
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AlertListResponse"
 components:
   schemas:
     HealthStatus:
@@ -33,4 +92,157 @@ components:
           type: string
       required:
         - status
-
+    RoomId:
+      type: string
+      enum: [drawing_room, work_room_1, work_room_2]
+    DeviceType:
+      type: string
+      enum: [fan, light]
+    Device:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+          description: Human readable label, e.g. "Fan 1"
+        type:
+          $ref: "#/components/schemas/DeviceType"
+        room:
+          $ref: "#/components/schemas/RoomId"
+        isOn:
+          type: boolean
+        powerDrawWatts:
+          type: number
+          description: Wattage drawn when on; 0 when off
+        ratedWatts:
+          type: number
+          description: Rated wattage of the device when running
+        lastChangedAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - name
+        - type
+        - room
+        - isOn
+        - powerDrawWatts
+        - ratedWatts
+        - lastChangedAt
+    DeviceListResponse:
+      type: object
+      properties:
+        devices:
+          type: array
+          items:
+            $ref: "#/components/schemas/Device"
+        generatedAt:
+          type: string
+          format: date-time
+      required:
+        - devices
+        - generatedAt
+    RoomSummary:
+      type: object
+      properties:
+        room:
+          $ref: "#/components/schemas/RoomId"
+        devices:
+          type: array
+          items:
+            $ref: "#/components/schemas/Device"
+        totalWatts:
+          type: number
+        activeDeviceCount:
+          type: integer
+        deviceCount:
+          type: integer
+      required:
+        - room
+        - devices
+        - totalWatts
+        - activeDeviceCount
+        - deviceCount
+    RoomUsage:
+      type: object
+      properties:
+        room:
+          $ref: "#/components/schemas/RoomId"
+        watts:
+          type: number
+        activeDeviceCount:
+          type: integer
+        deviceCount:
+          type: integer
+      required:
+        - room
+        - watts
+        - activeDeviceCount
+        - deviceCount
+    UsageSummary:
+      type: object
+      properties:
+        totalWatts:
+          type: number
+        estimatedDailyKwh:
+          type: number
+        activeDeviceCount:
+          type: integer
+        totalDeviceCount:
+          type: integer
+        perRoom:
+          type: array
+          items:
+            $ref: "#/components/schemas/RoomUsage"
+        generatedAt:
+          type: string
+          format: date-time
+      required:
+        - totalWatts
+        - estimatedDailyKwh
+        - activeDeviceCount
+        - totalDeviceCount
+        - perRoom
+        - generatedAt
+    AlertType:
+      type: string
+      enum: [after_hours, prolonged_use]
+    Alert:
+      type: object
+      properties:
+        id:
+          type: string
+        type:
+          $ref: "#/components/schemas/AlertType"
+        room:
+          $ref: "#/components/schemas/RoomId"
+        message:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        deviceIds:
+          type: array
+          items:
+            type: string
+      required:
+        - id
+        - type
+        - room
+        - message
+        - createdAt
+        - deviceIds
+    AlertListResponse:
+      type: object
+      properties:
+        alerts:
+          type: array
+          items:
+            $ref: "#/components/schemas/Alert"
+        generatedAt:
+          type: string
+          format: date-time
+      required:
+        - alerts
+        - generatedAt
