@@ -9,8 +9,7 @@ services:
       corepack enable &&
       corepack prepare pnpm@10 --activate &&
       pnpm install --frozen-lockfile &&
-      pnpm --filter @workspace/office-dashboard run build &&
-      pnpm --filter @workspace/api-server run build
+      pnpm run build:render
     startCommand: node --enable-source-maps artifacts/api-server/dist/index.mjs
     healthCheckPath: /api/healthz
     envVars:

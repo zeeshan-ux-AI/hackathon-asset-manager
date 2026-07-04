@@ -30,7 +30,7 @@ If you prefer not to use the Blueprint:
 | Setting | Value |
 |---------|-------|
 | **Runtime** | Node |
-| **Build Command** | `corepack enable && corepack prepare pnpm@10 --activate && pnpm install --frozen-lockfile && pnpm --filter @workspace/office-dashboard run build && pnpm --filter @workspace/api-server run build` |
+| **Build Command** | `corepack enable && corepack prepare pnpm@10 --activate && pnpm install --frozen-lockfile && pnpm run build:render` |
 | **Start Command** | `node --enable-source-maps artifacts/api-server/dist/index.mjs` |
 | **Health Check Path** | `/api/healthz` |
 
