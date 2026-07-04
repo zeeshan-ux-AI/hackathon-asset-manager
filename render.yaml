@@ -1,0 +1,31 @@
+services:
+  - type: web
+    name: smart-office-dashboard
+    runtime: node
+    plan: free
+    region: oregon
+    branch: main
+    buildCommand: >-
+      corepack enable &&
+      corepack prepare pnpm@10 --activate &&
+      pnpm install --frozen-lockfile &&
+      pnpm --filter @workspace/office-dashboard run build &&
+      pnpm --filter @workspace/api-server run build
+    startCommand: node --enable-source-maps artifacts/api-server/dist/index.mjs
+    healthCheckPath: /api/healthz
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: BASE_PATH
+        value: /
+      - key: SERVE_STATIC_DASHBOARD
+        value: "true"
+      # Only needed at build time so the dashboard's Vite config doesn't
+      # throw; Render injects its own PORT at runtime, which the API server
+      # actually listens on.
+      - key: PORT
+        value: "10000"
+      - key: DISCORD_BOT_TOKEN
+        sync: false
+      - key: DISCORD_ALERT_CHANNEL_ID
+        sync: false
